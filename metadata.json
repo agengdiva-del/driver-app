@@ -1,0 +1,6 @@
+{
+  "name": "MitraArja - Hyperlocal Super-App Arjawinangun",
+  "description": "Hyperlocal marketplace and delivery platform connecting customers, local UMKM merchants, and independent drivers in Arjawinangun, Cirebon and beyond.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
