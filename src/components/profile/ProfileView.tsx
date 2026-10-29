@@ -17,7 +17,8 @@ import {
   AlertTriangle,
   Plus,
   CheckCircle2,
-  X
+  X,
+  Bike
 } from 'lucide-react';
 import { Complaint } from '../../types';
 
@@ -26,6 +27,8 @@ export const ProfileView: React.FC = () => {
     currentUser,
     setIsKycModalOpen,
     setIsAddressModalOpen,
+    setIsDriverRegistrationModalOpen,
+    driverProfile,
     wallet,
     complaints,
     addComplaint,
@@ -158,6 +161,49 @@ export const ProfileView: React.FC = () => {
 
       {/* Account Navigation List */}
       <div className="bg-white dark:bg-stone-800 rounded-3xl border border-stone-200 dark:border-stone-700 divide-y divide-stone-100 dark:divide-stone-700/60 shadow-xs overflow-hidden">
+        {/* Driver App Portal & Registration */}
+        <div className="p-4 bg-gradient-to-r from-blue-50 via-indigo-50 to-sky-50 dark:from-blue-950/40 dark:to-indigo-950/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-blue-100 dark:border-blue-900/40">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/20">
+              <Bike className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-extrabold text-sm text-slate-900 dark:text-white">
+                  Mitra Pengemudi AWD (App Driver)
+                </span>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                  driverProfile?.status === 'Disetujui'
+                    ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400'
+                    : driverProfile?.status === 'Ditolak'
+                    ? 'bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-400'
+                    : 'bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-400'
+                }`}>
+                  {driverProfile?.status || 'Belum Terdaftar'}
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                Pengantaran pesanan merchant Arjawinangun • Komisi 90% Driver
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsDriverRegistrationModalOpen(true)}
+              className="px-3 py-1.5 rounded-xl border border-blue-300 dark:border-blue-700 bg-white dark:bg-slate-900 text-blue-700 dark:text-blue-300 font-bold text-xs hover:bg-blue-50 transition"
+            >
+              Form & Status
+            </button>
+            <button
+              onClick={() => setCurrentView('driver')}
+              className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-xs shadow-md shadow-blue-500/20 hover:from-blue-700 hover:to-indigo-700 transition"
+            >
+              Buka App Driver
+            </button>
+          </div>
+        </div>
+
         {/* Saved Addresses */}
         <button
           onClick={() => setIsAddressModalOpen(true)}

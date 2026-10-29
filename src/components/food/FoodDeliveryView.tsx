@@ -9,9 +9,6 @@ import {
   Search,
   Plus,
   ArrowLeft,
-  Info,
-  Tag,
-  MessageSquare,
   Heart
 } from 'lucide-react';
 import { Merchant, Product } from '../../types';
@@ -25,7 +22,6 @@ export const FoodDeliveryView: React.FC = () => {
     addToCart,
     isFavorite,
     toggleFavorite,
-    setCurrentView
   } = useApp();
 
   const [selectedCategory, setSelectedCategory] = useState<string>('Semua');
@@ -58,135 +54,115 @@ export const FoodDeliveryView: React.FC = () => {
     const menuCategories = Array.from(new Set(merchantProducts.map((p) => p.category)));
 
     return (
-      <div className="space-y-4 pb-24">
+      <div className="space-y-2.5 pb-16 max-w-5xl mx-auto">
         {/* Back Button & Header */}
         <div className="flex items-center justify-between">
           <button
             onClick={() => setSelectedMerchant(null)}
-            className="flex items-center gap-1.5 text-xs font-bold text-stone-600 dark:text-stone-300 hover:text-emerald-600 dark:hover:text-emerald-400 p-1.5 rounded-xl hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+            className="flex items-center gap-1.5 text-xs font-bold text-stone-600 dark:text-stone-300 hover:text-blue-600 dark:hover:text-blue-400 p-1.5 rounded-xl hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Kembali ke Daftar Resto</span>
           </button>
           <button
             onClick={() => toggleFavorite(selectedMerchant.id)}
-            className={`p-2 rounded-full border transition-all ${
+            className={`p-1.5 rounded-full border transition-all ${
               isFavorite(selectedMerchant.id)
                 ? 'bg-rose-50 text-rose-600 border-rose-200'
                 : 'text-stone-400 hover:text-rose-500 border-stone-200 dark:border-stone-700'
             }`}
           >
-            <Heart className={`w-4 h-4 ${isFavorite(selectedMerchant.id) ? 'fill-rose-500' : ''}`} />
+            <Heart className={`w-3.5 h-3.5 ${isFavorite(selectedMerchant.id) ? 'fill-rose-500' : ''}`} />
           </button>
         </div>
 
-        {/* Hero Banner & Info */}
-        <div className="bg-white dark:bg-stone-800 rounded-3xl border border-stone-200 dark:border-stone-700 overflow-hidden shadow-xs">
-          <div className="relative h-44 sm:h-56 w-full">
+        {/* Hero Banner & Info (Compact) */}
+        <div className="bg-white dark:bg-stone-800 rounded-2xl border border-stone-200 dark:border-stone-700 overflow-hidden shadow-2xs">
+          <div className="relative h-28 sm:h-36 w-full">
             <img
               src={selectedMerchant.banner}
               alt={selectedMerchant.name}
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-            <div className="absolute bottom-3 left-4 right-4 flex items-end justify-between text-white">
-              <div className="flex items-center gap-3">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+            <div className="absolute bottom-2.5 left-3 right-3 flex items-end justify-between text-white">
+              <div className="flex items-center gap-2.5">
                 <img
                   src={selectedMerchant.logo}
                   alt={selectedMerchant.name}
-                  className="w-14 h-14 rounded-2xl border-2 border-white object-cover shadow-md"
+                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl border-2 border-white object-cover shadow-sm"
                 />
                 <div>
-                  <h1 className="font-extrabold text-lg sm:text-2xl leading-tight">
+                  <h1 className="font-extrabold text-sm sm:text-lg leading-tight">
                     {selectedMerchant.name}
                   </h1>
-                  <p className="text-xs text-stone-200">{selectedMerchant.address}</p>
+                  <p className="text-[11px] text-stone-200 truncate">{selectedMerchant.address}</p>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="p-4 grid grid-cols-3 gap-2 border-b border-stone-100 dark:border-stone-700/60 text-center text-xs">
-            <div className="p-2 rounded-2xl bg-stone-50 dark:bg-stone-700/40">
-              <span className="text-stone-400 block text-[10px]">Rating</span>
-              <span className="font-bold text-stone-800 dark:text-stone-100 flex items-center justify-center gap-1 mt-0.5">
-                <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+          <div className="p-2.5 grid grid-cols-3 gap-1.5 border-b border-stone-100 dark:border-stone-700/60 text-center text-xs">
+            <div className="p-1.5 rounded-xl bg-stone-50 dark:bg-stone-700/40">
+              <span className="text-stone-400 block text-[9px]">Rating</span>
+              <span className="font-bold text-stone-800 dark:text-stone-100 flex items-center justify-center gap-1 mt-0.5 text-[11px]">
+                <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
                 {selectedMerchant.rating} ({selectedMerchant.totalReviews})
               </span>
             </div>
-            <div className="p-2 rounded-2xl bg-stone-50 dark:bg-stone-700/40">
-              <span className="text-stone-400 block text-[10px]">Jarak & Waktu</span>
-              <span className="font-bold text-stone-800 dark:text-stone-100 flex items-center justify-center gap-1 mt-0.5">
-                <Clock className="w-3.5 h-3.5 text-emerald-500" />
-                {selectedMerchant.distanceKm} km • {selectedMerchant.estimatedDeliveryMin} mnt
+            <div className="p-1.5 rounded-xl bg-stone-50 dark:bg-stone-700/40">
+              <span className="text-stone-400 block text-[9px]">Jarak & Waktu</span>
+              <span className="font-bold text-stone-800 dark:text-stone-100 flex items-center justify-center gap-1 mt-0.5 text-[11px]">
+                <Clock className="w-3 h-3 text-blue-500" />
+                {selectedMerchant.distanceKm}km • {selectedMerchant.estimatedDeliveryMin}mnt
               </span>
             </div>
-            <div className="p-2 rounded-2xl bg-stone-50 dark:bg-stone-700/40">
-              <span className="text-stone-400 block text-[10px]">Ongkos Kirim</span>
-              <span className="font-bold text-emerald-600 dark:text-emerald-400 block mt-0.5">
+            <div className="p-1.5 rounded-xl bg-stone-50 dark:bg-stone-700/40">
+              <span className="text-stone-400 block text-[9px]">Ongkir Flat</span>
+              <span className="font-bold text-blue-600 dark:text-blue-400 block mt-0.5 text-[11px]">
                 Rp {selectedMerchant.deliveryFee.toLocaleString('id-ID')}
               </span>
             </div>
           </div>
-
-          {/* Tags & Promo Badge */}
-          <div className="p-3 bg-emerald-50/50 dark:bg-emerald-950/20 flex flex-wrap items-center gap-2 text-xs">
-            <span className="px-2 py-0.5 rounded-lg bg-emerald-600 text-white font-bold text-[10px]">
-              Promo Resto
-            </span>
-            <span className="text-emerald-800 dark:text-emerald-300 font-medium text-[11px]">
-              Gunakan kode ONGKIRARJA untuk gratis ongkir s/d Rp 5.000
-            </span>
-          </div>
         </div>
 
-        {/* Menu Sections */}
-        <div className="space-y-6">
+        {/* Menu Sections (Compact Tiles) */}
+        <div className="space-y-4">
           {menuCategories.map((category) => {
-            const catProducts = merchantProducts.filter((p) => p.category === category);
+            const items = merchantProducts.filter((p) => p.category === category);
             return (
-              <div key={category} className="space-y-3">
-                <h3 className="font-extrabold text-base text-stone-900 dark:text-stone-100 border-l-4 border-blue-600 pl-2.5">
-                  {category}
+              <div key={category} className="space-y-1.5">
+                <h3 className="font-extrabold text-xs text-stone-800 dark:text-stone-200 uppercase tracking-wide">
+                  {category} ({items.length})
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {catProducts.map((product) => (
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {items.map((product) => (
                     <div
                       key={product.id}
-                      className="bg-white dark:bg-stone-800 rounded-2xl border border-stone-200/80 dark:border-stone-700 p-3 flex gap-3 shadow-xs hover:border-blue-500/50 transition-all"
+                      className="bg-white dark:bg-stone-800 rounded-xl border border-stone-200/80 dark:border-stone-700 p-2 flex gap-2.5 items-center shadow-2xs hover:border-blue-400/60 transition-all"
                     >
                       <img
                         src={product.image}
                         alt={product.name}
-                        className="w-24 h-24 rounded-xl object-cover shrink-0"
+                        className="w-16 h-16 rounded-lg object-cover bg-stone-100 shrink-0"
                       />
-                      <div className="flex-1 flex flex-col justify-between min-w-0">
-                        <div>
-                          <h4 className="font-bold text-sm text-stone-900 dark:text-stone-100 line-clamp-1">
-                            {product.name}
-                          </h4>
-                          <p className="text-xs text-stone-500 dark:text-stone-400 line-clamp-2 mt-0.5 leading-relaxed">
-                            {product.description}
-                          </p>
-                        </div>
-
-                        <div className="mt-2 flex items-center justify-between gap-2">
-                          <div>
-                            <span className="font-extrabold text-sm text-blue-600 dark:text-sky-400">
-                              Rp {(product.discountPrice || product.price).toLocaleString('id-ID')}
-                            </span>
-                            {product.discountPrice && (
-                              <span className="text-[10px] text-stone-400 line-through block">
-                                Rp {product.price.toLocaleString('id-ID')}
-                              </span>
-                            )}
-                          </div>
-
+                      <div className="flex-1 min-w-0 text-left">
+                        <h4 className="font-bold text-xs text-stone-900 dark:text-stone-100 truncate">
+                          {product.name}
+                        </h4>
+                        <p className="text-[10px] text-stone-400 truncate mt-0.5">
+                          {product.description}
+                        </p>
+                        <div className="flex items-center justify-between mt-1.5">
+                          <span className="font-black text-xs text-stone-900 dark:text-white">
+                            Rp {(product.discountPrice || product.price).toLocaleString('id-ID')}
+                          </span>
                           <button
                             onClick={() => addToCart(product, 1, noteInputs[product.id] || '')}
-                            className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs flex items-center gap-1 shadow-xs transition-transform active:scale-95"
+                            className="px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-[10px] flex items-center gap-1 shadow-2xs transition active:scale-95"
                           >
-                            <Plus className="w-3.5 h-3.5" />
+                            <Plus className="w-3 h-3" />
                             <span>Tambah</span>
                           </button>
                         </div>
@@ -203,41 +179,41 @@ export const FoodDeliveryView: React.FC = () => {
   }
 
   return (
-    <div className="space-y-4 pb-24">
-      {/* Title & Search */}
-      <div className="flex items-center justify-between gap-3">
+    <div className="space-y-2.5 pb-16 max-w-5xl mx-auto">
+      {/* Title & Search (Compact) */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div>
-          <h1 className="text-xl font-extrabold text-stone-900 dark:text-stone-100 flex items-center gap-2">
-            <UtensilsCrossed className="w-5 h-5 text-blue-600" />
-            <span>AWD Food Kuliner Arjawinangun</span>
+          <h1 className="text-base sm:text-lg font-black text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
+            <UtensilsCrossed className="w-4 h-4 text-blue-600" />
+            <span>AWD Food • Kuliner Arjawinangun</span>
           </h1>
-          <p className="text-xs text-stone-500 dark:text-stone-400">
-            Jelajahi kelezatan khas Arjawinangun, Cirebon & Nusantara by Wong Nangun
+          <p className="text-[11px] text-stone-500 dark:text-stone-400">
+            Pesan empal gentong, nasi jamblang, bebek, & cemilan khas Arjawinangun
           </p>
+        </div>
+
+        {/* Search Input */}
+        <div className="relative w-full sm:w-64">
+          <Search className="w-3.5 h-3.5 text-stone-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            value={searchFoodQuery}
+            onChange={(e) => setSearchFoodQuery(e.target.value)}
+            placeholder="Cari menu / resto..."
+            className="w-full bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl pl-8 pr-3 py-1.5 text-xs text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-2xs"
+          />
         </div>
       </div>
 
-      {/* Search Input */}
-      <div className="relative">
-        <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-        <input
-          type="text"
-          value={searchFoodQuery}
-          onChange={(e) => setSearchFoodQuery(e.target.value)}
-          placeholder="Cari empal asem, bebek sinjay, kopi, tahu gejrot..."
-          className="w-full bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-2xl pl-10 pr-4 py-2.5 text-xs sm:text-sm text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-xs"
-        />
-      </div>
-
-      {/* Category Pills (Horizontal Scroll) */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+      {/* Category Pills (Horizontal Scroll - Compact) */}
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 no-scrollbar">
         {categories.map((cat) => (
           <button
             key={cat}
             onClick={() => setSelectedCategory(cat)}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+            className={`px-2.5 py-1 rounded-lg text-[11px] font-bold whitespace-nowrap transition-all ${
               selectedCategory === cat
-                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xs'
+                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-2xs'
                 : 'bg-white dark:bg-stone-800 text-stone-600 dark:text-stone-300 border border-stone-200 dark:border-stone-700 hover:bg-stone-100'
             }`}
           >
@@ -246,75 +222,58 @@ export const FoodDeliveryView: React.FC = () => {
         ))}
       </div>
 
-      {/* Restaurant Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* Restaurant Cards (Compact Dual/Triple Grid) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-2.5">
         {foodMerchants.map((merchant) => (
           <div
             key={merchant.id}
             onClick={() => setSelectedMerchant(merchant)}
-            className="cursor-pointer bg-white dark:bg-stone-800 rounded-3xl border border-stone-200/80 dark:border-stone-700 overflow-hidden shadow-xs hover:shadow-lg hover:-translate-y-1 transition-all duration-200 group"
+            className="cursor-pointer bg-white dark:bg-stone-800 rounded-xl border border-stone-200/80 dark:border-stone-700 overflow-hidden shadow-2xs hover:border-blue-400/60 transition-all duration-150 group"
           >
-            <div className="relative h-36 w-full">
+            <div className="relative h-24 sm:h-28 w-full bg-stone-100">
               <img
                 src={merchant.banner}
                 alt={merchant.name}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
 
               {merchant.isVerified && (
-                <span className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-[10px] font-bold flex items-center gap-1 shadow-sm">
-                  <ShieldCheck className="w-3 h-3" />
+                <span className="absolute top-1.5 left-1.5 px-1.5 py-0.2 rounded-md bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-[9px] font-bold flex items-center gap-0.5 shadow-2xs">
+                  <ShieldCheck className="w-2.5 h-2.5" />
                   Verified
                 </span>
               )}
 
-              <div className="absolute bottom-2.5 left-2.5 flex items-center gap-1 bg-black/60 backdrop-blur-xs text-white px-2 py-0.5 rounded-lg text-xs font-bold">
-                <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+              <div className="absolute bottom-1.5 left-1.5 flex items-center gap-1 bg-black/60 backdrop-blur-xs text-white px-1.5 py-0.2 rounded text-[10px] font-bold">
+                <Star className="w-2.5 h-2.5 text-amber-400 fill-amber-400" />
                 <span>{merchant.rating}</span>
-                <span className="text-[10px] text-stone-300 font-normal">
-                  ({merchant.totalReviews})
-                </span>
+                <span className="text-[9px] text-stone-300">({merchant.totalReviews})</span>
               </div>
 
-              <div className="absolute bottom-2.5 right-2.5 flex items-center gap-2 text-white text-[11px] font-semibold bg-black/60 backdrop-blur-xs px-2 py-0.5 rounded-lg">
-                <span className="flex items-center gap-1">
-                  <Bike className="w-3 h-3 text-sky-400" />
-                  {merchant.distanceKm} km
-                </span>
+              <div className="absolute bottom-1.5 right-1.5 flex items-center gap-1 text-white text-[10px] font-bold bg-black/60 backdrop-blur-xs px-1.5 py-0.2 rounded">
+                <Bike className="w-2.5 h-2.5 text-sky-300" />
+                <span>{merchant.distanceKm}km</span>
                 <span>•</span>
-                <span className="flex items-center gap-1">
-                  <Clock className="w-3 h-3 text-amber-300" />
-                  {merchant.estimatedDeliveryMin} mnt
-                </span>
+                <Clock className="w-2.5 h-2.5 text-amber-300" />
+                <span>{merchant.estimatedDeliveryMin}m</span>
               </div>
             </div>
 
-            <div className="p-3.5">
-              <h3 className="font-bold text-sm text-stone-900 dark:text-stone-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+            <div className="p-2 sm:p-2.5">
+              <h3 className="font-bold text-xs text-stone-900 dark:text-stone-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">
                 {merchant.name}
               </h3>
-              <p className="text-xs text-stone-500 dark:text-stone-400 truncate mt-0.5">
+              <p className="text-[10px] text-stone-500 dark:text-stone-400 truncate mt-0.5">
                 {merchant.address}
               </p>
 
-              <div className="flex flex-wrap gap-1 mt-2">
-                {merchant.tags.slice(0, 3).map((tag) => (
-                  <span
-                    key={tag}
-                    className="text-[10px] font-medium bg-stone-100 dark:bg-stone-700/60 text-stone-600 dark:text-stone-300 px-2 py-0.5 rounded-md"
-                  >
-                    #{tag}
-                  </span>
-                ))}
-              </div>
-
-              <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-stone-100 dark:border-stone-700/60 text-xs">
+              <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-stone-100 dark:border-stone-700/60 text-[10px]">
                 <span className="text-stone-600 dark:text-stone-300">
                   Ongkir: <strong className="text-blue-600 dark:text-sky-400">Rp {merchant.deliveryFee.toLocaleString('id-ID')}</strong>
                 </span>
-                <span className="font-bold text-blue-600 dark:text-blue-400 hover:underline">
-                  Buka Menu →
+                <span className="font-extrabold text-blue-600 dark:text-blue-400 hover:underline">
+                  Menu →
                 </span>
               </div>
             </div>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { ServicesGrid } from './ServicesGrid';
 import { PromoBanners } from './PromoBanners';
@@ -6,7 +6,6 @@ import { ActiveOrderFloatingWidget } from './ActiveOrderFloatingWidget';
 import {
   Wallet,
   QrCode,
-  ArrowUpRight,
   Plus,
   Star,
   Clock,
@@ -15,7 +14,12 @@ import {
   ChevronRight,
   Flame,
   Award,
-  Sparkles
+  Sparkles,
+  ShoppingBag,
+  Tag,
+  ArrowUpRight,
+  Store,
+  Check
 } from 'lucide-react';
 import { Merchant, Product } from '../../types';
 
@@ -27,13 +31,18 @@ export const HomeView: React.FC = () => {
     setSelectedMerchant,
     setSelectedProduct,
     setCurrentView,
+    setIsDriverRegistrationModalOpen,
     addToCart,
     isFavorite,
-    toggleFavorite
+    toggleFavorite,
+    applyVoucher,
+    availableVouchers
   } = useApp();
 
+  const [activeTab, setActiveTab] = useState<'merchants' | 'products' | 'promos'>('merchants');
+
   const featuredMerchants = merchants.filter((m) => m.featured || m.rating >= 4.8);
-  const popularProducts = products.slice(0, 6);
+  const popularProducts = products.slice(0, 8);
 
   const handleMerchantSelect = (merchant: Merchant) => {
     setSelectedMerchant(merchant);
@@ -44,302 +53,317 @@ export const HomeView: React.FC = () => {
   };
 
   return (
-    <div className="space-y-4 pb-24">
-      {/* Official AWD Brand Hero Card */}
-      <div className="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white rounded-3xl p-4 sm:p-5 shadow-xl border border-blue-500/30 flex items-center justify-between gap-3 relative overflow-hidden">
-        {/* Subtle decorative background glow */}
-        <div className="absolute -right-6 -bottom-6 w-40 h-40 rounded-full bg-blue-500/20 blur-2xl pointer-events-none" />
+    <div className="space-y-2.5 pb-20 max-w-6xl mx-auto">
+      
+      {/* 1. COMPACT UNIFIED HUB: BRAND + WALLET IN ONE SLEEK BAR */}
+      <div className="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white rounded-2xl p-2.5 sm:p-3 shadow-md border border-blue-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 relative overflow-hidden">
+        {/* Subtle decorative glow */}
+        <div className="absolute -right-6 -bottom-6 w-32 h-32 rounded-full bg-blue-500/15 blur-xl pointer-events-none" />
 
-        <div className="relative z-10 flex-1 min-w-0">
-          <div className="flex items-center gap-1.5 mb-1">
-            <span className="px-2 py-0.5 rounded-full bg-blue-500/30 border border-blue-400/30 text-[10px] font-black uppercase tracking-wider text-sky-300 flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-amber-300" />
-              Official Hyperlocal Delivery
-            </span>
-          </div>
-          <h1 className="text-lg sm:text-2xl font-black tracking-tight leading-tight bg-gradient-to-r from-white via-blue-100 to-sky-200 bg-clip-text text-transparent">
-            AWD • Arjawinangun Delivery
-          </h1>
-          <p className="text-xs text-sky-200/90 font-medium mt-0.5">
-            By Wong Nangun — Pesan Cepat Kuliner, Sembako & Kurir
-          </p>
-
-          <div className="flex flex-wrap items-center gap-2 mt-2.5">
-            <span className="text-[10px] bg-white/10 px-2 py-0.5 rounded-lg text-slate-200 border border-white/10">
-              📍 Pasar Gaya & By Pass
-            </span>
-            <span className="text-[10px] bg-white/10 px-2 py-0.5 rounded-lg text-slate-200 border border-white/10">
-              🛵 Driver Wong Dewek
-            </span>
-            <span className="text-[10px] bg-white/10 px-2 py-0.5 rounded-lg text-slate-200 border border-white/10">
-              ⚡ Antar 15-25 Mnt
-            </span>
-          </div>
-        </div>
-
-        {/* Uploaded Official Logo */}
-        <div className="relative z-10 shrink-0">
-          <div className="p-1 rounded-2xl bg-gradient-to-br from-blue-500 via-indigo-600 to-sky-400 shadow-xl">
+        {/* Brand identity */}
+        <div className="flex items-center gap-2.5 z-10">
+          <div className="w-10 h-10 rounded-xl bg-white p-0.5 shadow-md shrink-0 overflow-hidden">
             <img
               src="/assets/aistudio/Designer_b056b7f0.png"
-              alt="AWD Arjawinangun Delivery Logo"
-              className="w-20 h-20 sm:w-24 sm:h-24 object-contain rounded-xl drop-shadow-md hover:scale-105 transition-transform"
+              alt="AWD"
+              className="w-full h-full object-contain"
             />
           </div>
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5">
+              <span className="font-black text-sm text-white tracking-tight">
+                AWD Arjawinangun
+              </span>
+              <span className="px-1.5 py-0.2 rounded bg-amber-400 text-blue-950 font-black text-[9px] uppercase tracking-wider">
+                Wong Nangun
+              </span>
+            </div>
+            <p className="text-[10px] text-blue-200 truncate">
+              ⚡ Antar 15-25 Mnt • Driver Wong Dewek • Tarif Terjangkau
+            </p>
+          </div>
+        </div>
+
+        {/* MitraPay Wallet & Micro-Actions */}
+        <div className="flex items-center justify-between sm:justify-end gap-2 z-10 border-t sm:border-t-0 border-white/10 pt-2 sm:pt-0">
+          <div
+            onClick={() => setCurrentView('wallet')}
+            className="cursor-pointer group pr-2 sm:border-r border-white/15 text-left"
+          >
+            <div className="flex items-center gap-1 text-[10px] text-sky-200 font-medium">
+              <Wallet className="w-3 h-3 text-sky-300" />
+              <span>MitraPay</span>
+              <span className="text-[9px] font-bold text-amber-300">({wallet.points} Poin)</span>
+            </div>
+            <div className="text-sm font-black text-white tracking-tight leading-tight group-hover:text-sky-200 transition-colors">
+              Rp {wallet.balance.toLocaleString('id-ID')}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => setCurrentView('wallet')}
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-[11px] font-bold transition active:scale-95"
+            >
+              <QrCode className="w-3.5 h-3.5 text-sky-300" />
+              <span>Bayar</span>
+            </button>
+            <button
+              onClick={() => setCurrentView('wallet')}
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-[11px] font-bold transition active:scale-95"
+            >
+              <Plus className="w-3.5 h-3.5 text-sky-300" />
+              <span>Top Up</span>
+            </button>
+            <button
+              onClick={() => setCurrentView('driver')}
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-[11px] font-extrabold shadow-sm transition active:scale-95"
+            >
+              <Bike className="w-3.5 h-3.5" />
+              <span>Driver</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Active Order Live Floating Widget */}
-      <ActiveOrderFloatingWidget />
-
-      {/* MitraPay Quick Action Card (Rich Blue Gradient) */}
-      <div className="bg-gradient-to-r from-blue-700 via-indigo-700 to-sky-800 text-white p-3.5 sm:p-4 rounded-3xl shadow-lg border border-blue-400/30 flex items-center justify-between gap-3 relative overflow-hidden">
-        <div
-          onClick={() => setCurrentView('wallet')}
-          className="cursor-pointer group flex-1 min-w-0"
-        >
-          <div className="flex items-center gap-1.5 text-xs text-blue-100 font-medium">
-            <Wallet className="w-3.5 h-3.5 text-sky-300" />
-            <span>Saldo MitraPay AWD</span>
-            <span className="px-1.5 py-0.2 bg-blue-900/60 rounded text-[10px] font-bold text-sky-300">
-              {wallet.membershipLevel}
-            </span>
-          </div>
-          <div className="text-lg sm:text-2xl font-black tracking-tight mt-0.5 truncate group-hover:text-sky-200 transition-colors">
-            Rp {wallet.balance.toLocaleString('id-ID')}
-          </div>
-          <div className="flex items-center gap-1 text-[11px] text-amber-300 font-semibold mt-0.5">
-            <Award className="w-3 h-3" />
-            <span>{wallet.points} Poin Reward</span>
-          </div>
-        </div>
-
-        {/* Action buttons: Bayar QRIS, Top Up, Transfer */}
-        <div className="flex items-center gap-2 shrink-0">
-          <button
-            onClick={() => setCurrentView('wallet')}
-            className="flex flex-col items-center justify-center p-2 rounded-2xl bg-white/15 hover:bg-white/25 text-white transition-all active:scale-95 text-center min-w-[58px]"
-          >
-            <QrCode className="w-5 h-5 text-sky-200 mb-1" />
-            <span className="text-[10px] font-bold leading-none">Bayar</span>
-          </button>
-
-          <button
-            onClick={() => setCurrentView('wallet')}
-            className="flex flex-col items-center justify-center p-2 rounded-2xl bg-white/15 hover:bg-white/25 text-white transition-all active:scale-95 text-center min-w-[58px]"
-          >
-            <Plus className="w-5 h-5 text-sky-200 mb-1" />
-            <span className="text-[10px] font-bold leading-none">Top Up</span>
-          </button>
-
-          <button
-            onClick={() => setCurrentView('wallet')}
-            className="flex flex-col items-center justify-center p-2 rounded-2xl bg-white/15 hover:bg-white/25 text-white transition-all active:scale-95 text-center min-w-[58px]"
-          >
-            <ArrowUpRight className="w-5 h-5 text-sky-200 mb-1" />
-            <span className="text-[10px] font-bold leading-none">Transfer</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Services Grid (6 Core Facilitator Services) */}
+      {/* 2. COMPACT SERVICES ROW (6 CORE FACILITATOR SERVICES) */}
       <section>
-        <div className="flex items-center justify-between mb-2.5">
-          <h2 className="font-extrabold text-sm sm:text-base text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-            Layanan AWD Arjawinangun
-            <span className="text-[10px] font-bold bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-full">
-              Wong Nangun
-            </span>
-          </h2>
-        </div>
         <ServicesGrid />
       </section>
 
-      {/* Banner Carousel */}
-      <PromoBanners />
+      {/* 3. DUAL-COLUMN COMPACT WORKSPACE (DESKTOP) / STREAMLINED FEED (MOBILE) */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-2.5 items-start">
+        
+        {/* LEFT COLUMN: ACTIVE ORDER, COMPACT PROMO TICKER, AND DRIVER RECRUITMENT (MD: 5 cols) */}
+        <div className="md:col-span-5 space-y-2.5">
+          
+          {/* Active Order Widget (Compact) */}
+          <ActiveOrderFloatingWidget />
 
-      {/* Featured Local Merchants in Arjawinangun */}
-      <section>
-        <div className="flex items-center justify-between mb-3">
-          <div>
-            <h2 className="font-extrabold text-base sm:text-lg text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-              <span>Resto & Toko Pilihan Arjawinangun</span>
-              <Flame className="w-4 h-4 text-orange-500 fill-orange-500" />
-            </h2>
-            <p className="text-xs text-stone-500 dark:text-stone-400">
-              Merchant resmi terverifikasi dengan ulasan terbaik
-            </p>
+          {/* Compact Promo Banner Carousel */}
+          <div className="rounded-2xl overflow-hidden shadow-xs border border-stone-200/80 dark:border-stone-800">
+            <PromoBanners />
           </div>
-          <button
-            onClick={() => setCurrentView('food')}
-            className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-0.5"
-          >
-            Lihat Semua <ChevronRight className="w-3.5 h-3.5" />
-          </button>
-        </div>
 
-        {/* Merchant Horizontal / Grid Scroll */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
-          {featuredMerchants.map((merchant) => (
-            <div
-              key={merchant.id}
-              onClick={() => handleMerchantSelect(merchant)}
-              className="group cursor-pointer bg-white dark:bg-stone-800/90 rounded-2xl border border-stone-200/80 dark:border-stone-700/60 overflow-hidden shadow-xs hover:shadow-md transition-all duration-200 hover:-translate-y-0.5"
-            >
-              <div className="relative h-32 sm:h-36 w-full overflow-hidden bg-stone-100 dark:bg-stone-700">
-                <img
-                  src={merchant.banner}
-                  alt={merchant.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-
-                {/* Verified Merchant Badge */}
-                {merchant.isVerified && (
-                  <span className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-[10px] font-bold flex items-center gap-1 shadow-sm">
-                    <ShieldCheck className="w-3 h-3" />
-                    Terverifikasi
-                  </span>
-                )}
-
-                {/* Rating Badge */}
-                <div className="absolute bottom-2.5 left-2.5 flex items-center gap-1 bg-black/60 backdrop-blur-xs text-white px-2 py-0.5 rounded-lg text-xs font-bold">
-                  <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                  <span>{merchant.rating}</span>
-                  <span className="text-[10px] text-stone-300 font-normal">
-                    ({merchant.totalReviews})
-                  </span>
-                </div>
-
-                {/* Distance & ETA */}
-                <div className="absolute bottom-2.5 right-2.5 flex items-center gap-2 text-white text-[11px] font-semibold bg-black/60 backdrop-blur-xs px-2 py-0.5 rounded-lg">
-                  <span className="flex items-center gap-1">
-                    <Bike className="w-3 h-3 text-sky-400" />
-                    {merchant.distanceKm} km
-                  </span>
-                  <span>•</span>
-                  <span className="flex items-center gap-1">
-                    <Clock className="w-3 h-3 text-amber-300" />
-                    {merchant.estimatedDeliveryMin} mnt
-                  </span>
-                </div>
+          {/* Compact Driver Recruitment & Community Guarantee Card */}
+          <div className="p-3 rounded-2xl bg-gradient-to-r from-blue-700 via-indigo-700 to-sky-700 text-white shadow-sm flex items-center justify-between gap-2.5 border border-blue-400/30">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-8 h-8 rounded-xl bg-white p-0.5 text-slate-900 flex items-center justify-center shrink-0 shadow-xs">
+                <Bike className="w-5 h-5 text-blue-700" />
               </div>
-
-              {/* Info */}
-              <div className="p-3">
-                <div className="flex items-center justify-between gap-1">
-                  <h3 className="font-bold text-sm text-stone-900 dark:text-stone-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">
-                    {merchant.name}
-                  </h3>
-                </div>
-                <p className="text-xs text-stone-500 dark:text-stone-400 truncate mt-0.5">
-                  {merchant.address}
-                </p>
-
-                <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-stone-100 dark:border-stone-700/60 text-xs">
-                  <span className="text-stone-600 dark:text-stone-300 font-medium">
-                    Ongkir: <strong className="text-blue-600 dark:text-blue-400">Rp {merchant.deliveryFee.toLocaleString('id-ID')}</strong>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1">
+                  <span className="text-[9px] font-extrabold uppercase tracking-wide bg-amber-400 text-slate-950 px-1.5 py-0.2 rounded">
+                    Mitra Driver
                   </span>
-                  <span className="text-[11px] text-stone-400 bg-stone-100 dark:bg-stone-700/50 px-2 py-0.5 rounded-md">
-                    {merchant.category}
-                  </span>
+                  <span className="text-[10px] text-blue-200">Komisi 90%</span>
                 </div>
+                <h4 className="font-extrabold text-xs text-white truncate mt-0.5">
+                  Gabung Jadi Driver AWD Arja
+                </h4>
               </div>
             </div>
-          ))}
-        </div>
-      </section>
 
-      {/* Popular Products in Arjawinangun */}
-      <section>
-        <div className="flex items-center justify-between mb-3">
-          <div>
-            <h2 className="font-extrabold text-base sm:text-lg text-stone-900 dark:text-stone-100">
-              Menu & Produk Terlaris Hari Ini
-            </h2>
-            <p className="text-xs text-stone-500 dark:text-stone-400">
-              Disukai warga Arjawinangun, Jungjang & sekitarnya
-            </p>
-          </div>
-          <button
-            onClick={() => setCurrentView('food')}
-            className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-0.5"
-          >
-            Lihat Menu <ChevronRight className="w-3.5 h-3.5" />
-          </button>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          {popularProducts.map((product) => (
-            <div
-              key={product.id}
-              className="bg-white dark:bg-stone-800/90 rounded-2xl border border-stone-200/80 dark:border-stone-700/60 p-2.5 flex flex-col justify-between shadow-xs hover:shadow-md transition-all group"
+            <button
+              onClick={() => setIsDriverRegistrationModalOpen(true)}
+              className="px-2.5 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-[10px] shrink-0 shadow-xs transition"
             >
-              <div>
-                <div className="relative h-28 w-full rounded-xl overflow-hidden bg-stone-100 dark:bg-stone-700 mb-2">
+              Daftar
+            </button>
+          </div>
+
+          {/* Quick Vouchers 1-Click Strip */}
+          <div className="p-2.5 rounded-2xl bg-white dark:bg-stone-800/90 border border-stone-200 dark:border-stone-700 space-y-1.5 shadow-2xs">
+            <div className="flex items-center justify-between text-xs font-bold text-stone-800 dark:text-stone-200">
+              <div className="flex items-center gap-1">
+                <Tag className="w-3.5 h-3.5 text-blue-600" />
+                <span>Kupon Diskon Instan:</span>
+              </div>
+              <span className="text-[10px] text-slate-400">1-Klik Pakai</span>
+            </div>
+            <div className="flex gap-1.5 overflow-x-auto pb-0.5">
+              {availableVouchers.slice(0, 3).map((v) => (
+                <button
+                  key={v.id}
+                  onClick={() => applyVoucher(v.code)}
+                  className="px-2 py-1 rounded-lg bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 border border-blue-200 dark:border-blue-900 text-blue-700 dark:text-blue-300 text-[10px] font-bold shrink-0 flex items-center gap-1 transition"
+                  title={v.title}
+                >
+                  <span>{v.code}</span>
+                  <span className="text-[9px] text-emerald-600 dark:text-emerald-400 font-extrabold">
+                    {v.discountType === 'percentage' ? `${v.discountValue}%` : `Rp${Math.floor(v.discountValue/1000)}k`}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* RIGHT COLUMN: HIGH-DENSITY EXPLORER TABS (MD: 7 cols) */}
+        <div className="md:col-span-7 space-y-2">
+          
+          {/* Dense Tab Selector */}
+          <div className="flex items-center justify-between bg-stone-100 dark:bg-stone-800 p-1 rounded-xl border border-stone-200 dark:border-stone-700 text-xs font-bold">
+            <button
+              onClick={() => setActiveTab('merchants')}
+              className={`flex-1 py-1.5 px-2 rounded-lg transition-all flex items-center justify-center gap-1 ${
+                activeTab === 'merchants'
+                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xs'
+                  : 'text-stone-600 dark:text-stone-300 hover:text-stone-900'
+              }`}
+            >
+              <Store className="w-3.5 h-3.5" />
+              <span>Resto Pilihan ({featuredMerchants.length})</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('products')}
+              className={`flex-1 py-1.5 px-2 rounded-lg transition-all flex items-center justify-center gap-1 ${
+                activeTab === 'products'
+                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xs'
+                  : 'text-stone-600 dark:text-stone-300 hover:text-stone-900'
+              }`}
+            >
+              <Flame className="w-3.5 h-3.5 text-orange-400" />
+              <span>Menu Terlaris</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('promos')}
+              className={`flex-1 py-1.5 px-2 rounded-lg transition-all flex items-center justify-center gap-1 ${
+                activeTab === 'promos'
+                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xs'
+                  : 'text-stone-600 dark:text-stone-300 hover:text-stone-900'
+              }`}
+            >
+              <Tag className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Voucher Hemat</span>
+            </button>
+          </div>
+
+          {/* TAB 1: HIGH-DENSITY MERCHANTS LIST */}
+          {activeTab === 'merchants' && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {featuredMerchants.map((merchant) => (
+                <div
+                  key={merchant.id}
+                  onClick={() => handleMerchantSelect(merchant)}
+                  className="group cursor-pointer bg-white dark:bg-stone-800/90 rounded-xl border border-stone-200/80 dark:border-stone-700/60 p-2 shadow-2xs hover:shadow-xs hover:border-blue-400/60 transition-all flex gap-2.5 items-center"
+                >
+                  {/* Compact Thumbnail */}
+                  <div className="relative w-16 h-16 sm:w-18 sm:h-18 rounded-lg overflow-hidden bg-stone-100 shrink-0">
+                    <img
+                      src={merchant.banner}
+                      alt={merchant.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                    />
+                    <div className="absolute bottom-0 inset-x-0 bg-black/60 text-white text-[9px] font-bold px-1 py-0.2 flex items-center justify-between">
+                      <span className="flex items-center text-amber-300">
+                        <Star className="w-2.5 h-2.5 fill-amber-300 inline mr-0.5" />
+                        {merchant.rating}
+                      </span>
+                      <span>{merchant.distanceKm}km</span>
+                    </div>
+                  </div>
+
+                  {/* Merchant Details */}
+                  <div className="flex-1 min-w-0 text-left">
+                    <div className="flex items-center gap-1">
+                      <h3 className="font-bold text-xs text-stone-900 dark:text-stone-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">
+                        {merchant.name}
+                      </h3>
+                      {merchant.isVerified && (
+                        <ShieldCheck className="w-3 h-3 text-blue-500 shrink-0" />
+                      )}
+                    </div>
+                    <p className="text-[10px] text-stone-500 dark:text-stone-400 truncate mt-0.5">
+                      {merchant.category} • {merchant.address}
+                    </p>
+                    <div className="flex items-center justify-between mt-1 text-[10px]">
+                      <span className="text-blue-600 dark:text-blue-400 font-bold">
+                        Ongkir Rp {merchant.deliveryFee.toLocaleString('id-ID')}
+                      </span>
+                      <span className="text-stone-400 flex items-center gap-0.5">
+                        <Clock className="w-2.5 h-2.5" />
+                        {merchant.estimatedDeliveryMin} mnt
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* TAB 2: HIGH-DENSITY POPULAR PRODUCTS */}
+          {activeTab === 'products' && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {popularProducts.map((product) => (
+                <div
+                  key={product.id}
+                  className="bg-white dark:bg-stone-800/90 rounded-xl border border-stone-200/80 dark:border-stone-700/60 p-2 shadow-2xs hover:border-blue-400/60 transition-all flex gap-2 items-center"
+                >
                   <img
                     src={product.image}
                     alt={product.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    className="w-14 h-14 rounded-lg object-cover bg-stone-100 shrink-0"
                   />
-                  {product.discountPrice && (
-                    <span className="absolute top-1.5 left-1.5 px-1.5 py-0.2 rounded-md bg-rose-500 text-white text-[10px] font-black">
-                      Diskon
-                    </span>
-                  )}
+                  <div className="flex-1 min-w-0 text-left">
+                    <h4 className="font-bold text-xs text-stone-900 dark:text-stone-100 truncate">
+                      {product.name}
+                    </h4>
+                    <p className="text-[10px] text-stone-400 truncate mt-0.5">
+                      {product.merchantName || 'Empal Gentong H. Apud'}
+                    </p>
+                    <div className="flex items-center justify-between mt-1">
+                      <span className="font-black text-xs text-stone-900 dark:text-white">
+                        Rp {(product.discountPrice || product.price).toLocaleString('id-ID')}
+                      </span>
+                      <button
+                        onClick={() => addToCart(product, 1)}
+                        className="px-2 py-0.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold shadow-2xs transition active:scale-95 flex items-center gap-1"
+                      >
+                        <Plus className="w-3 h-3" />
+                        <span>Pesan</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
-
-                <div className="text-[10px] font-semibold text-blue-600 dark:text-blue-400 truncate">
-                  {product.merchantName}
-                </div>
-                <h4 className="font-bold text-xs text-stone-900 dark:text-stone-100 line-clamp-2 leading-tight mt-0.5">
-                  {product.name}
-                </h4>
-              </div>
-
-              <div className="mt-2 pt-2 border-t border-stone-100 dark:border-stone-700/50">
-                <div className="flex items-baseline gap-1">
-                  <span className="font-extrabold text-xs sm:text-sm text-stone-900 dark:text-stone-100">
-                    Rp {(product.discountPrice || product.price).toLocaleString('id-ID')}
-                  </span>
-                  {product.discountPrice && (
-                    <span className="text-[10px] text-stone-400 line-through">
-                      Rp {product.price.toLocaleString('id-ID')}
-                    </span>
-                  )}
-                </div>
-
-                <button
-                  onClick={() => addToCart(product, 1)}
-                  className="w-full mt-2 py-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-bold flex items-center justify-center gap-1 shadow-xs transition-colors active:scale-95"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Tambah</span>
-                </button>
-              </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </section>
+          )}
 
-      {/* Hyperlocal Community Guarantee Banner */}
-      <div className="p-4 rounded-3xl bg-gradient-to-r from-blue-50/70 via-indigo-50/50 to-sky-50/70 dark:from-stone-800/60 dark:to-stone-800/60 border border-blue-200/80 dark:border-stone-700/60 flex items-center gap-3">
-        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white flex items-center justify-center shrink-0 shadow-md">
-          <img
-            src="/assets/aistudio/Designer_b056b7f0.png"
-            alt="AWD"
-            className="w-9 h-9 object-contain"
-          />
+          {/* TAB 3: PROMOS & VOUCHERS LIST */}
+          {activeTab === 'promos' && (
+            <div className="space-y-2">
+              {availableVouchers.map((v) => (
+                <div
+                  key={v.id}
+                  className="p-2.5 rounded-xl bg-white dark:bg-stone-800/90 border border-stone-200 dark:border-stone-700 flex items-center justify-between gap-3 text-xs"
+                >
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-mono font-black text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950 px-1.5 py-0.5 rounded border border-blue-200 dark:border-blue-800">
+                        {v.code}
+                      </span>
+                      <span className="font-bold text-stone-800 dark:text-stone-200">{v.title}</span>
+                    </div>
+                    <p className="text-[10px] text-stone-400 mt-0.5">{v.description}</p>
+                  </div>
+                  <button
+                    onClick={() => applyVoucher(v.code)}
+                    className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-[11px] shrink-0 shadow-2xs hover:from-blue-700 transition"
+                  >
+                    Gunakan
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
         </div>
-        <div>
-          <h4 className="font-bold text-xs sm:text-sm text-stone-800 dark:text-stone-100">
-            AWD (Arjawinangun Delivery) By Wong Nangun
-          </h4>
-          <p className="text-[11px] text-stone-600 dark:text-stone-400 leading-relaxed">
-            Menghubungkan warga Arjawinangun langsung dengan UMKM lokal dan driver independen wong dewek. Tarif transparan, komisi driver 10%, dan biaya platform terjangkau (Rp 1.000 - Rp 2.500).
-          </p>
-        </div>
+
       </div>
+
     </div>
   );
 };

@@ -118,6 +118,60 @@ export interface OrderItem {
   notes?: string;
 }
 
+export type DriverVerificationStatus = 'Menunggu Verifikasi' | 'Disetujui' | 'Ditolak';
+
+export type DriverOrderStep = 
+  | 'Menuju Merchant' 
+  | 'Pesanan Diambil' 
+  | 'Menuju Pelanggan' 
+  | 'Pesanan Selesai'
+  | 'heading_to_merchant' 
+  | 'order_picked_up' 
+  | 'heading_to_customer' 
+  | 'order_completed';
+
+export interface DriverRegistrationData {
+  id: string;
+  fullName: string;                 // Wajib
+  phone: string;                    // Wajib · OTP
+  email?: string;                   // Opsional
+  password?: string;                // Wajib
+  confirmPassword?: string;         // Wajib
+  profilePhoto: string;             // Wajib
+  ktpPhoto: string;                 // Wajib untuk verifikasi identitas
+  gender?: string;                  // Opsional
+  birthDate: string;                // Wajib jika diperlukan untuk memastikan usia
+  address: string;                  // Wajib
+  village: string;                  // Wajib
+  district: string;                 // Wajib
+  vehicleType: 'Motor' | 'Mobil';   // Wajib
+  vehicleBrandModel: string;        // Wajib (Merek dan tipe kendaraan)
+  vehiclePlate: string;             // Wajib (Nomor polisi kendaraan)
+  vehicleColor: string;             // Wajib (Warna kendaraan)
+  vehiclePhoto: string;             // Wajib (Foto kendaraan)
+  simNumber: string;                // Wajib (Nomor SIM)
+  simPhoto: string;                 // Wajib (Foto SIM untuk pengemudi)
+  stnkPhoto: string;                // Wajib (Foto STNK untuk verifikasi kendaraan)
+  bankAccountOrEwallet?: string;    // Opsional, jika diperlukan untuk pembayaran
+  emergencyContactName?: string;    // Opsional (Kontak darurat)
+  emergencyContactPhone?: string;   // Opsional (Nomor kontak darurat)
+  termsAccepted: boolean;           // Wajib (Persetujuan syarat dan ketentuan)
+  status: DriverVerificationStatus; // Status akun: Menunggu Verifikasi → Disetujui → atau Ditolak
+  rejectionReason?: string;
+  registeredAt: string;
+  rating?: number;
+  completedTripsCount?: number;
+}
+
+export interface DriverEarnings {
+  todayEarnings: number;
+  totalEarnings: number;
+  todayTrips: number;
+  totalTrips: number;
+  commissionPercent: number; // 90% driver, 10% platform
+  driverWalletBalance: number;
+}
+
 export interface DriverInfo {
   id: string;
   name: string;
@@ -240,3 +294,4 @@ export interface ChatMessage {
   timestamp: string;
   isRead: boolean;
 }
+

@@ -1,6 +1,6 @@
 {
-  "name": "MitraArja - Hyperlocal Super-App Arjawinangun",
-  "description": "Hyperlocal marketplace and delivery platform connecting customers, local UMKM merchants, and independent drivers in Arjawinangun, Cirebon and beyond.",
+  "name": "AWD Driver - Mitra Arjawinangun Delivery",
+  "description": "Aplikasi khusus mitra driver AWD (Arjawinangun Delivery By Wong Nangun). Manajemen orderan, navigasi penjemputan & pengantaran, komisi 90%, dan pencairan dompet.",
   "requestFramePermissions": ["geolocation"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

@@ -1,4 +1,4 @@
-import { Merchant, Product, CustomerAddress, DriverInfo, Voucher, NotificationItem, WalletTransaction } from '../types';
+import { Merchant, Product, CustomerAddress, DriverInfo, Voucher, NotificationItem, WalletTransaction, DriverRegistrationData, DriverEarnings } from '../types';
 
 export const INITIAL_ADDRESSES: CustomerAddress[] = [
   {
@@ -647,3 +647,45 @@ export const MOCK_WALLET_TRANSACTIONS: WalletTransaction[] = [
     timestamp: '17 Okt 2026, 10:15'
   }
 ];
+
+export const INITIAL_DRIVER_PROFILE: DriverRegistrationData = {
+  id: 'drv-01',
+  fullName: 'Kang Asep Kurniawan',
+  phone: '0813-8822-4411',
+  email: 'asep.kurniawan@gmail.com',
+  password: '••••••••',
+  confirmPassword: '••••••••',
+  profilePhoto: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80',
+  ktpPhoto: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=300&auto=format&fit=crop&q=80',
+  gender: 'Laki-laki',
+  birthDate: '1995-07-21',
+  address: 'Jl. Ki Bagus Rangin No. 18 RT 02 / RW 01',
+  village: 'Jungjang',
+  district: 'Arjawinangun',
+  vehicleType: 'Motor',
+  vehicleBrandModel: 'Honda Vario 160cc CBS',
+  vehiclePlate: 'E 4521 AR',
+  vehicleColor: 'Biru Metalik AWD',
+  vehiclePhoto: 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=300&auto=format&fit=crop&q=80',
+  simNumber: '3209142107950001',
+  simPhoto: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=300&auto=format&fit=crop&q=80',
+  stnkPhoto: 'https://images.unsplash.com/photo-1607344645866-009c320c5ab8?w=300&auto=format&fit=crop&q=80',
+  bankAccountOrEwallet: 'BCA - 0128392101 (a.n Asep Kurniawan)',
+  emergencyContactName: 'Ibu Siti Khodijah (Istri)',
+  emergencyContactPhone: '0819-2233-4455',
+  termsAccepted: true,
+  status: 'Disetujui',
+  registeredAt: '12 Okt 2026, 09:30',
+  rating: 4.95,
+  completedTripsCount: 142
+};
+
+export const INITIAL_DRIVER_EARNINGS: DriverEarnings = {
+  todayEarnings: 126000,
+  totalEarnings: 2840000,
+  todayTrips: 8,
+  totalTrips: 142,
+  commissionPercent: 90,
+  driverWalletBalance: 345000
+};
+

@@ -9,110 +9,80 @@ import { Header } from './components/common/Header';
 import { BottomNav } from './components/common/BottomNav';
 import { ToastContainer } from './components/common/ToastContainer';
 
-// Feature Views
-import { HomeView } from './components/home/HomeView';
-import { FoodDeliveryView } from './components/food/FoodDeliveryView';
-import { GroceryView } from './components/grocery/GroceryView';
-import { PharmacyView } from './components/pharmacy/PharmacyView';
-import { CourierDeliveryView } from './components/courier/CourierDeliveryView';
-import { PpobView } from './components/ppob/PpobView';
-import { UmkmView } from './components/umkm/UmkmView';
-import { GlobalSearchView } from './components/search/GlobalSearchView';
-import { OrderHistoryView } from './components/orders/OrderHistoryView';
-import { WalletView } from './components/wallet/WalletView';
-import { NotificationView } from './components/notifications/NotificationView';
-import { ProfileView } from './components/profile/ProfileView';
+// Dedicated Driver Views
+import { DriverPortalView } from './components/driver/DriverPortalView';
+import { DriverWalletView } from './components/driver/DriverWalletView';
+import { DriverHistoryView } from './components/driver/DriverHistoryView';
+import { DriverProfileView } from './components/driver/DriverProfileView';
+import { DriverNotificationsView } from './components/driver/DriverNotificationsView';
 
-// Modals
-import { CartDrawer } from './components/cart/CartDrawer';
-import { CheckoutModal } from './components/checkout/CheckoutModal';
-import { OrderTrackingModal } from './components/tracking/OrderTrackingModal';
+// Driver Modals
+import { DriverRegistrationModal } from './components/driver/DriverRegistrationModal';
 import { ChatModal } from './components/chat/ChatModal';
-import { AuthModal } from './components/auth/AuthModal';
-import { KycModal } from './components/profile/KycModal';
-import { AddressManagementModal } from './components/profile/AddressManagementModal';
-import { ArchitectureSchemaModal } from './components/developer/ArchitectureSchemaModal';
 
 const AppContent: React.FC = () => {
-  const { currentView, isDeviceFrame, activeOrder } = useApp();
+  const { currentView, isDeviceFrame } = useApp();
 
   const renderActiveView = () => {
     switch (currentView) {
-      case 'home':
-        return <HomeView />;
-      case 'food':
-        return <FoodDeliveryView />;
-      case 'grocery':
-        return <GroceryView />;
-      case 'pharmacy':
-        return <PharmacyView />;
-      case 'courier':
-        return <CourierDeliveryView />;
-      case 'ppob':
-        return <PpobView />;
-      case 'umkm':
-        return <UmkmView />;
-      case 'search':
-        return <GlobalSearchView />;
+      case 'cockpit':
+      case 'driver':
       case 'orders':
-        return <OrderHistoryView />;
+        return <DriverPortalView />;
       case 'wallet':
-        return <WalletView />;
+        return <DriverWalletView />;
+      case 'history':
+        return <DriverHistoryView />;
       case 'notifications':
-        return <NotificationView />;
+        return <DriverNotificationsView />;
+      case 'profile':
       case 'account':
-        return <ProfileView />;
+        return <DriverProfileView />;
       default:
-        return <HomeView />;
+        return <DriverPortalView />;
     }
   };
 
   return (
-    <div className={`min-h-screen bg-stone-100 dark:bg-stone-950 text-stone-900 dark:text-stone-100 transition-colors ${isDeviceFrame ? 'py-8 flex justify-center items-center' : ''}`}>
+    <div className={`min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors ${isDeviceFrame ? 'py-4 flex justify-center items-center' : ''}`}>
       {/* Device frame container or responsive container */}
       <div
-        className={`w-full bg-white dark:bg-stone-900 min-h-screen transition-all ${
+        className={`w-full bg-slate-50 dark:bg-slate-900 transition-all ${
           isDeviceFrame
-            ? 'max-w-[420px] h-[880px] rounded-[48px] shadow-2xl border-[10px] border-stone-800 dark:border-stone-700 overflow-hidden relative flex flex-col'
-            : 'max-w-4xl mx-auto flex flex-col shadow-sm'
+            ? 'max-w-[390px] h-[820px] rounded-[44px] shadow-2xl border-[8px] border-slate-800 dark:border-slate-700 overflow-hidden relative flex flex-col'
+            : 'max-w-5xl lg:max-w-6xl mx-auto flex flex-col shadow-sm min-h-screen lg:h-screen lg:overflow-hidden'
         }`}
       >
         {/* Smartphone Speaker / Notch when in device frame */}
         {isDeviceFrame && (
-          <div className="bg-stone-800 dark:bg-stone-700 h-6 w-full flex items-center justify-between px-6 text-[10px] text-white shrink-0">
-            <span className="font-bold">20:26</span>
-            <div className="w-20 h-4 bg-stone-900 rounded-full mx-auto" />
+          <div className="bg-slate-900 dark:bg-slate-800 h-5 w-full flex items-center justify-between px-6 text-[9px] text-white shrink-0">
+            <span className="font-bold">AWD Driver</span>
+            <div className="w-16 h-3.5 bg-black rounded-full mx-auto" />
             <span className="font-bold">5G • 100%</span>
           </div>
         )}
 
-        {/* Global Header */}
+        {/* Global Driver Header */}
         <Header />
 
-        {/* Main Content Area */}
-        <main className="flex-1 px-3 sm:px-4 pt-3 overflow-y-auto">
+        {/* Main Driver Content Area */}
+        <main className="flex-1 px-2.5 sm:px-4 py-2.5 overflow-y-auto">
           {renderActiveView()}
         </main>
 
-        {/* Global Navigation Bar */}
+        {/* Global Driver Bottom Navigation */}
         <BottomNav />
 
         {/* Home Indicator Bar in device frame */}
         {isDeviceFrame && (
-          <div className="h-4 bg-white dark:bg-stone-900 flex justify-center items-center shrink-0">
-            <div className="w-32 h-1 bg-stone-300 dark:bg-stone-700 rounded-full" />
+          <div className="h-4 bg-white dark:bg-slate-900 flex justify-center items-center shrink-0">
+            <div className="w-32 h-1 bg-slate-300 dark:bg-slate-700 rounded-full" />
           </div>
         )}
 
-        {/* Overlay Modals & Drawers */}
-        <CartDrawer />
-        <CheckoutModal />
-        <OrderTrackingModal />
+        {/* Driver Modals */}
+        <DriverRegistrationModal />
         <ChatModal />
-        <AuthModal />
-        <KycModal />
-        <AddressManagementModal />
-        <ArchitectureSchemaModal />
         <ToastContainer />
       </div>
     </div>

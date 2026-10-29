@@ -14,7 +14,11 @@ import {
   WalletTransaction,
   Complaint,
   Review,
-  ChatMessage
+  ChatMessage,
+  DriverRegistrationData,
+  DriverVerificationStatus,
+  DriverEarnings,
+  DriverOrderStep
 } from '../types';
 import {
   INITIAL_ADDRESSES,
@@ -23,7 +27,9 @@ import {
   MOCK_DRIVER,
   MOCK_VOUCHERS,
   MOCK_NOTIFICATIONS,
-  MOCK_WALLET_TRANSACTIONS
+  MOCK_WALLET_TRANSACTIONS,
+  INITIAL_DRIVER_PROFILE,
+  INITIAL_DRIVER_EARNINGS
 } from '../data/mockData';
 import confetti from 'canvas-confetti';
 
@@ -142,6 +148,26 @@ interface AppContextType {
   isDeviceFrame: boolean;
   toggleDeviceFrame: () => void;
 
+  // Driver App Portal & Registration
+  isDriverRegistrationModalOpen: boolean;
+  setIsDriverRegistrationModalOpen: (open: boolean) => void;
+  driverProfile: DriverRegistrationData | null;
+  registerDriver: (data: Omit<DriverRegistrationData, 'id' | 'status' | 'registeredAt'>) => void;
+  updateDriverStatus: (status: DriverVerificationStatus, reason?: string) => void;
+  isDriverOnline: boolean;
+  toggleDriverOnline: () => void;
+  driverEarnings: DriverEarnings;
+  driverActiveOrder: Order | null;
+  driverStep: DriverOrderStep;
+  setDriverStep: (step: DriverOrderStep) => void;
+  advanceDriverStep: () => void;
+  driverIncomingOrder: Order | null;
+  setDriverIncomingOrder: (order: Order | null) => void;
+  acceptIncomingDriverOrder: () => void;
+  rejectIncomingDriverOrder: () => void;
+  withdrawDriverEarnings: (amount: number) => boolean;
+  triggerSampleIncomingOrder: () => void;
+
   // Toasts
   toasts: Toast[];
   showToast: (message: string, type?: Toast['type']) => void;
@@ -150,8 +176,8 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Navigation
-  const [currentView, setCurrentView] = useState<string>('home');
+  // Navigation (Default to Driver Cockpit)
+  const [currentView, setCurrentView] = useState<string>('cockpit');
   const [selectedMerchant, setSelectedMerchant] = useState<Merchant | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedService, setSelectedService] = useState<ServiceType | null>(null);
@@ -172,15 +198,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [darkMode, setDarkMode] = useState(false);
   const [isDeviceFrame, setIsDeviceFrame] = useState(false);
 
-  // User
+  // User (Mitra Driver AWD)
   const [currentUser, setCurrentUser] = useState<User | null>({
-    id: 'user-1',
-    fullName: 'Ahmad Faiz Mubarok',
-    phone: '0812-3456-7890',
-    email: 'faiz.arjawinangun@gmail.com',
-    avatarUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+    id: 'drv-01',
+    fullName: 'Kang Asep Kurniawan',
+    phone: '0813-8822-4411',
+    email: 'asep.kurniawan@gmail.com',
+    avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80',
     verificationStatus: 'verified',
-    role: 'customer',
+    role: 'driver',
     createdAt: '2026-01-10'
   });
 
@@ -345,6 +371,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       createdAt: 'Kemarin'
     }
   ]);
+
+  // Driver App Portal & Registration
+  const [isDriverRegistrationModalOpen, setIsDriverRegistrationModalOpen] = useState(false);
+  const [driverProfile, setDriverProfile] = useState<DriverRegistrationData | null>(INITIAL_DRIVER_PROFILE);
+  const [isDriverOnline, setIsDriverOnline] = useState(true);
+  const [driverEarnings, setDriverEarnings] = useState<DriverEarnings>(INITIAL_DRIVER_EARNINGS);
+  const [driverActiveOrder, setDriverActiveOrder] = useState<Order | null>(null);
+  const [driverStep, setDriverStep] = useState<DriverOrderStep>('Menuju Merchant');
+  const [driverIncomingOrder, setDriverIncomingOrder] = useState<Order | null>(null);
 
   // Toasts
   const [toasts, setToasts] = useState<Toast[]>([]);
@@ -797,6 +832,173 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
+  // Driver App Handlers
+  const registerDriver = (data: Omit<DriverRegistrationData, 'id' | 'status' | 'registeredAt'>) => {
+    const newProfile: DriverRegistrationData = {
+      ...data,
+      id: `drv-${Date.now().toString().slice(-4)}`,
+      status: 'Menunggu Verifikasi',
+      registeredAt: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) + ', ' + new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+      rating: 5.0,
+      completedTripsCount: 0
+    };
+    setDriverProfile(newProfile);
+    showToast('Pendaftaran driver berhasil dikirim! Menunggu verifikasi admin AWD.', 'success');
+  };
+
+  const updateDriverStatus = (status: DriverVerificationStatus, reason?: string) => {
+    if (driverProfile) {
+      setDriverProfile({
+        ...driverProfile,
+        status,
+        rejectionReason: status === 'Ditolak' ? (reason || 'Dokumen SIM/STNK kurang jelas atau masa berlaku habis') : undefined
+      });
+      if (status === 'Disetujui') {
+        confetti({ particleCount: 60, spread: 60, origin: { y: 0.6 } });
+        showToast('Akun Driver DISANGGONGKAN / DISETUJUI! Selamat bergabung di AWD.', 'success');
+      } else if (status === 'Ditolak') {
+        showToast('Status Driver diubah menjadi Ditolak.', 'warning');
+      } else {
+        showToast('Status Driver kembali ke Menunggu Verifikasi.', 'info');
+      }
+    }
+  };
+
+  const toggleDriverOnline = () => {
+    if (driverProfile?.status !== 'Disetujui') {
+      showToast('Akun Anda belum disetujui untuk mulai bekerja', 'warning');
+      return;
+    }
+    const nextState = !isDriverOnline;
+    setIsDriverOnline(nextState);
+    if (nextState) {
+      showToast('Status Driver: ONLINE. Siap menerima orderan pengantaran!', 'success');
+      // If no active or incoming order, trigger a simulated incoming order after 3s
+      if (!driverActiveOrder && !driverIncomingOrder) {
+        setTimeout(() => {
+          triggerSampleIncomingOrder();
+        }, 3000);
+      }
+    } else {
+      showToast('Status Driver: OFFLINE. Istirahat sejenak.', 'info');
+    }
+  };
+
+  const advanceDriverStep = () => {
+    if (!driverActiveOrder) return;
+    if (driverStep === 'Menuju Merchant') {
+      setDriverStep('Pesanan Diambil');
+      showToast('Status diperbarui: Pesanan telah diambil dari Merchant', 'success');
+    } else if (driverStep === 'Pesanan Diambil') {
+      setDriverStep('Menuju Pelanggan');
+      showToast('Status diperbarui: Sedang menuju alamat pelanggan', 'info');
+    } else if (driverStep === 'Menuju Pelanggan') {
+      setDriverStep('Pesanan Selesai');
+      // Calculate earnings: 90% of deliveryFee
+      const earned = Math.round(driverActiveOrder.deliveryFee * 0.9);
+      setDriverEarnings(prev => ({
+        ...prev,
+        todayEarnings: prev.todayEarnings + earned,
+        totalEarnings: prev.totalEarnings + earned,
+        todayTrips: prev.todayTrips + 1,
+        totalTrips: prev.totalTrips + 1,
+        driverWalletBalance: prev.driverWalletBalance + earned
+      }));
+      confetti({ particleCount: 70, spread: 70, origin: { y: 0.5 } });
+      showToast(`Pesanan selesai! Pendapatan +Rp ${earned.toLocaleString('id-ID')} (Komisi 90%) telah masuk dompet`, 'success');
+      
+      setTimeout(() => {
+        setDriverActiveOrder(null);
+        setDriverStep('Menuju Merchant');
+      }, 2500);
+    }
+  };
+
+  const triggerSampleIncomingOrder = () => {
+    const sampleOrder: Order = {
+      id: `ord-in-${Date.now().toString().slice(-4)}`,
+      orderNumber: `AWD-FOOD-${Math.floor(1000 + Math.random() * 9000)}`,
+      userId: 'user-sample',
+      merchantId: 'm-1',
+      merchantName: 'Empal Gentong H. Apud - Cabang Arja',
+      merchantAddress: 'Jl. Raya By Pass Jungjang No. 12, Arjawinangun',
+      serviceType: 'food',
+      items: [
+        {
+          product: {
+            id: 'p-1',
+            merchantId: 'm-1',
+            name: 'Empal Gentong Daging Super',
+            description: 'Daging sapi segar khas Arjawinangun',
+            price: 28000,
+            image: 'https://images.unsplash.com/photo-1541832676-9b763b0239ab?w=300&auto=format&fit=crop&q=80',
+            category: 'Makanan Utama',
+            serviceType: 'food',
+            stock: 50,
+            rating: 4.9,
+            soldCount: 320,
+            isAvailable: true
+          },
+          quantity: 2,
+          notes: 'Kuah pisah, sambal cabai bubuk banyakin'
+        }
+      ],
+      subtotal: 56000,
+      deliveryFee: 12000,
+      platformFee: 1500,
+      discount: 0,
+      totalAmount: 69500,
+      paymentMethod: 'qris',
+      paymentStatus: 'paid',
+      orderStatus: 'preparing',
+      deliveryAddress: {
+        id: 'addr-cust',
+        userId: 'user-sample',
+        label: 'Home',
+        recipientName: 'Mas Danu Pratama (0812-9988-7766)',
+        phone: '0812-9988-7766',
+        streetAddress: 'Komplek Griya Arjawinangun Indah Blok C-09',
+        village: 'Jungjang',
+        district: 'Arjawinangun',
+        city: 'Kabupaten Cirebon',
+        province: 'Jawa Barat',
+        latitude: -6.6430,
+        longitude: 108.4090,
+        notes: 'Pagar abu-abu, ada motor Nmax parkir di teras',
+        isDefault: true
+      },
+      createdAt: 'Baru saja',
+      estimatedArrival: '18 Menit'
+    };
+    setDriverIncomingOrder(sampleOrder);
+  };
+
+  const acceptIncomingDriverOrder = () => {
+    if (!driverIncomingOrder) return;
+    setDriverActiveOrder(driverIncomingOrder);
+    setDriverStep('Menuju Merchant');
+    setDriverIncomingOrder(null);
+    showToast('Tawaran pesanan diterima! Segera meluncur ke resto/merchant.', 'success');
+  };
+
+  const rejectIncomingDriverOrder = () => {
+    setDriverIncomingOrder(null);
+    showToast('Tawaran pengantaran dilewati.', 'info');
+  };
+
+  const withdrawDriverEarnings = (amount: number): boolean => {
+    if (amount <= 0 || amount > driverEarnings.driverWalletBalance) {
+      showToast('Nominal penarikan melebihi saldo dompet driver', 'error');
+      return false;
+    }
+    setDriverEarnings(prev => ({
+      ...prev,
+      driverWalletBalance: prev.driverWalletBalance - amount
+    }));
+    showToast(`Penarikan dana Rp ${amount.toLocaleString('id-ID')} berhasil diajukan ke rekening/e-wallet!`, 'success');
+    return true;
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -880,6 +1082,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         toggleDarkMode,
         isDeviceFrame,
         toggleDeviceFrame,
+        isDriverRegistrationModalOpen,
+        setIsDriverRegistrationModalOpen,
+        driverProfile,
+        registerDriver,
+        updateDriverStatus,
+        isDriverOnline,
+        toggleDriverOnline,
+        driverEarnings,
+        driverActiveOrder,
+        driverStep,
+        setDriverStep,
+        advanceDriverStep,
+        driverIncomingOrder,
+        setDriverIncomingOrder,
+        acceptIncomingDriverOrder,
+        rejectIncomingDriverOrder,
+        withdrawDriverEarnings,
+        triggerSampleIncomingOrder,
         toasts,
         showToast
       }}
